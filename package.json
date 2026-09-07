@@ -1,0 +1,12 @@
+{
+  "name": "minerva-landing",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Landing page de Minerva Systems (HTML estatico auto-contenido)",
+  "scripts": {
+    "start": "serve -s . -l ${PORT:-3000}"
+  },
+  "dependencies": {
+    "serve": "^14.2.4"
+  }
+}
