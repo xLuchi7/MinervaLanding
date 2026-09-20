@@ -21,7 +21,7 @@ unica dependencia externa son las fuentes de Google Fonts (Bricolage Grotesque +
     192/512px, `site.webmanifest`) linkeado desde el `<head>`. Viene del mismo proyecto de origen
     (`GestionSoftware_Web`), no generado por IA — es el icono "solo owl" sin anillo ni texto, mejor
     para tamaños chicos.
-  - `og-banner.jpg` — banner 1200x630 para previews de WhatsApp/LinkedIn (`og:image`). Generado
+  - `og-banner.jpg` — banner 1200x630 para previews de WhatsApp/LinkedIn (`og:image`). **La URL de `og:image`/`twitter:image` tiene que ser ABSOLUTA** (`https://www.minervasystemsar.com/assets/og-banner.jpg`): WhatsApp/LinkedIn/Facebook no resuelven rutas relativas. Si cambia el dominio, actualizar tambien `og:url` y `canonical` en el `<head>`. Las plataformas cachean la vista previa: para refrescarla usar el Post Inspector de LinkedIn o el depurador de Facebook. Generado
     programaticamente (Python/Pillow) replicando la identidad del sitio: logo + headline del hero +
     checks, sobre el mismo navy con glow dorado y grilla de puntos. El script que lo genera no se
     versiona; si hay que rehacerlo, es un canvas 1200x630 con el mismo logo + tipografia Bricolage
