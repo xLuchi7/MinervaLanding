@@ -2,8 +2,10 @@
 // Sirve el sitio estático y expone POST /api/demo (solicitud de demo por mail).
 // Credenciales SMTP: SÓLO por variables de entorno (Railway) o un .env local
 // ignorado por git — nunca en el repo.
-//   SMTP_USER  cuenta de Gmail que envía (y recibe la notificación interna)
-//   SMTP_PASS  contraseña de aplicación de esa cuenta
+//   MAIL_RELAY_URL / MAIL_RELAY_TOKEN  PRODUCCIÓN: URL del Apps Script que envía los mails (ver email/relay-apps-script.gs)
+//                y el secreto compartido. Railway bloquea SMTP saliente, por eso no se usa SMTP ahí.
+//   SMTP_USER  cuenta de Gmail (recibe el aviso interno; en local también envía por SMTP)
+//   SMTP_PASS  contraseña de aplicación de esa cuenta (sólo hace falta para SMTP directo, o sea local)
 //   MAIL_TO    (opcional) destinatario de la notificación interna; default SMTP_USER
 //   MAIL_DRY_RUN=1  no envía: arma los mails y los imprime en consola (para probar)
 
@@ -74,25 +76,51 @@ function getTransporter() {
   return transporter;
 }
 
-async function sendDemo(d) {
+// Entrega un mail. Railway (planes sin SMTP saliente) da "Connection timeout" contra smtp.gmail.com,
+// así que en producción se usa el RELAY: un POST por HTTPS a un Google Apps Script (email/relay-apps-script.gs)
+// que manda el mail desde la misma cuenta de Gmail. Sin MAIL_RELAY_URL se usa SMTP directo (sirve en local).
+async function deliver(m) {
+  if (!DRY && process.env.MAIL_RELAY_URL) {
+    const r = await fetch(process.env.MAIL_RELAY_URL, {
+      method: 'POST', redirect: 'follow', signal: AbortSignal.timeout(25000),
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        token: process.env.MAIL_RELAY_TOKEN || '', to: m.to, subject: m.subject, html: m.html,
+        replyTo: m.replyTo ? m.replyTo.address : '', fromName: 'Minerva Systems'
+      })
+    });
+    const txt = await r.text();
+    let j;
+    try { j = JSON.parse(txt); } catch (e) { throw new Error('el relay respondió algo inesperado (HTTP ' + r.status + ')'); }
+    if (!j.ok) throw new Error('el relay rechazó el envío: ' + (j.error || 'sin detalle'));
+    return null;
+  }
   const t = getTransporter();
-  if (!t) throw new Error('SMTP_USER/SMTP_PASS no configurados');
-  const from = process.env.SMTP_USER || 'demo@localhost';
-  const to = process.env.MAIL_TO || from;
+  if (!t) throw new Error('falta MAIL_RELAY_URL o SMTP_USER/SMTP_PASS');
+  return t.sendMail({
+    from: process.env.SMTP_USER || 'demo@localhost',
+    to: m.toName ? { name: m.toName, address: m.to } : m.to,
+    replyTo: m.replyTo, subject: m.subject, html: m.html
+  });
+}
+
+async function sendDemo(d) {
+  const to = process.env.MAIL_TO || process.env.SMTP_USER || (DRY ? 'demo@localhost' : '');
+  if (!to) throw new Error('falta MAIL_TO o SMTP_USER (destinatario del aviso interno)');
 
   // primero el aviso interno: si la casilla del cliente rebota, el lead no se pierde
-  const interno = await t.sendMail({
-    from: from, to: to, replyTo: { name: d.name, address: d.email },
+  const interno = await deliver({
+    to: to, replyTo: { name: d.name, address: d.email },
     subject: 'Nueva solicitud de demo — ' + d.name, html: fill(TPL_INTERNO, d)
   });
-  if (DRY) console.log('[dry-run] interno →', to, '\n', interno.message);
+  if (DRY && interno) console.log('[dry-run] interno →', to, '\n', interno.message);
 
   try {
-    const cliente = await t.sendMail({
-      from: from, to: { name: d.name, address: d.email },
+    const cliente = await deliver({
+      to: d.email, toName: d.name,
       subject: 'Solicitud de demo — ' + d.name, html: fill(TPL_CLIENTE, d)
     });
-    if (DRY) console.log('[dry-run] cliente →', d.email, '\n', cliente.message);
+    if (DRY && cliente) console.log('[dry-run] cliente →', d.email, '\n', cliente.message);
   } catch (e) {
     console.error('No se pudo enviar la confirmación al cliente:', e.message);
   }

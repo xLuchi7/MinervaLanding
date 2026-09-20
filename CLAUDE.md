@@ -28,8 +28,10 @@ unica dependencia externa son las fuentes de Google Fonts (Bricolage Grotesque +
     Grotesque/Instrument Sans (variable fonts de Google Fonts, ejes weight/width) + un glow radial
     suave (ojo con la intensidad: sin cuidado se come el navy y queda todo oliva/dorado).
   - `team-patricio.jpg` y `team-luciano.jpg` — fotos del equipo en el cierre, recorte cuadrado de 480x480
-    centrado en la cara (la de Luciano salio de un original de 1448x1086, recorte de 940x940 en x=375,y=20;
-    el PNG original de 2 MB no se versiona). Juan Chueco sigue con el placeholder `.team__ph` (iniciales)
+    centrado en la cara (la de Patricio salio de un original de 1088x1446, recorte de 960x960 en x=85,y=84: el
+    recorte anterior terminaba justo en el menton y se veia "cortado", ahora deja cuello y saco abajo; la de Luciano
+    salio de un original de 1448x1086, recorte de 940x940 en x=375,y=20;
+    los PNG originales de ~2 MB no se versionan). Juan Chueco sigue con el placeholder `.team__ph` (iniciales)
     hasta que haya foto. En la seccion de cierre las fotos miden `clamp(88px,9vw,112px)` con un halo dorado suave (antes 64px; pedido del cliente/jefe: agrandarlas).
   - `system/` — capturas reales del sistema para la galeria de `#cadena` (ver mas abajo). 8 archivos
     (5 `.jpg` y 3 `.png`: `gastos-mensuales`, `ventas-dashboard` y `comisiones-de-empresa`), entre 1905 y 2161 de
@@ -197,11 +199,8 @@ Convenciones:
   `MinervaController.cs`: los datos del usuario se escapan a HTML antes de entrar al template, el aviso
   interno va primero (si la casilla del cliente rebota el lead no se pierde y igual se responde OK),
   limite de 5 envios por hora por IP y tope de largo por campo.
-- **Credenciales SMTP: NUNCA en el repo.** Van por variables de entorno: `SMTP_USER` (la cuenta de Gmail
-  que envia y recibe el aviso interno), `SMTP_PASS` (contraseña de aplicacion) y opcional `MAIL_TO`. En Railway:
-  Variables del servicio. En local: exportarlas o crear un `.env` (esta en `.gitignore`). Sin ellas el
-  endpoint responde 500 y el modal muestra el error. `MAIL_DRY_RUN=1` arma los mails y los imprime en
-  consola sin enviar (para probar sin mandar nada).
+- **Envio de mails en PRODUCCION = relay por Apps Script (Railway bloquea el SMTP saliente).** Al desplegar, el envio directo por SMTP daba `Error al enviar el mail: Connection timeout` (smtp.gmail.com:587 no es alcanzable desde Railway en planes sin SMTP saliente; local si andaba). Por eso `server.js` tiene `deliver()`: si hay `MAIL_RELAY_URL`, hace un POST por HTTPS (fetch global, Node >= 18, `engines` en package.json) a un Google Apps Script (`email/relay-apps-script.gs`, con las instrucciones de instalacion adentro) que manda el mail con `MailApp` desde la misma cuenta de Gmail; sin `MAIL_RELAY_URL` usa SMTP directo con nodemailer (util en local). El script se instala UNA vez en script.google.com logueado como la cuenta de Gmail, como "Aplicacion web" (ejecutar como "Yo", acceso "Cualquier persona"), y el secreto compartido `TOKEN` del script tiene que ser igual a `MAIL_RELAY_TOKEN`. Si se edita el script hay que publicar "Nueva version" de la implementacion. Cuota de Google para cuentas gratuitas: ~100 destinatarios/dia. Apps Script contesta con un 302 a una URL de googleusercontent: `fetch` lo sigue solo. El log del servidor dice el motivo de cada fallo (`el relay rechazo el envio: token invalido`, etc.).
+- **Credenciales: NUNCA en el repo.** Variables de entorno en Railway (Variables del servicio): `MAIL_RELAY_URL` (URL `/exec` del Apps Script) y `MAIL_RELAY_TOKEN` (el secreto compartido) para producción; `SMTP_USER` (cuenta de Gmail: destinatario del aviso interno) y opcional `MAIL_TO` (si el aviso debe ir a otra casilla). `SMTP_PASS` (contraseña de aplicacion) solo hace falta para SMTP directo, es decir en local (`.env`, en `.gitignore`). Sin destino de envio el endpoint responde 500 y el modal muestra el error. `MAIL_DRY_RUN=1` arma los mails y los imprime en consola sin enviar (para probar sin mandar nada).
 
 ## Correr localmente
 
@@ -218,7 +217,7 @@ browser sigue mostrando el sitio, pero el boton de demo no funciona sin el servi
 
 - `package.json`: dependencia unica `nodemailer`; `npm start` = `node server.js` (usa `$PORT`).
 - Railway (Nixpacks) detecta Node, corre `npm install` y `npm start`. `$PORT` lo inyecta Railway.
-- **Hay que cargar `SMTP_USER` y `SMTP_PASS` en las Variables de Railway** para que el modal envie mails.
+- **Variables de Railway para que el modal envie mails: `MAIL_RELAY_URL`, `MAIL_RELAY_TOKEN` y `SMTP_USER`** (ver arriba; `SMTP_PASS` no sirve en Railway porque bloquea el SMTP saliente).
 - No hace falta Dockerfile ni `railway.json`.
 
 Flujo: commit + push a GitHub -> Railway "New Project" -> "Deploy from GitHub repo" -> este repo.

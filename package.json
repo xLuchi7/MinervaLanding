@@ -9,5 +9,8 @@
   },
   "dependencies": {
     "nodemailer": "^10.0.10"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
