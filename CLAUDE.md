@@ -27,12 +27,14 @@ unica dependencia externa son las fuentes de Google Fonts (Bricolage Grotesque +
     versiona; si hay que rehacerlo, es un canvas 1200x630 con el mismo logo + tipografia Bricolage
     Grotesque/Instrument Sans (variable fonts de Google Fonts, ejes weight/width) + un glow radial
     suave (ojo con la intensidad: sin cuidado se come el navy y queda todo oliva/dorado).
-  - `team-patricio.jpg` y `team-luciano.jpg` — fotos del equipo en el cierre, recorte cuadrado de 480x480
-    centrado en la cara (la de Patricio salio de un original de 1088x1446, recorte de 960x960 en x=85,y=84: el
-    recorte anterior terminaba justo en el menton y se veia "cortado", ahora deja cuello y saco abajo; la de Luciano
-    salio de un original de 1448x1086, recorte de 940x940 en x=375,y=20;
-    los PNG originales de ~2 MB no se versionan). Juan Chueco sigue con el placeholder `.team__ph` (iniciales)
-    hasta que haya foto. En la seccion de cierre las fotos miden `clamp(88px,9vw,112px)` con un halo dorado suave (antes 64px; pedido del cliente/jefe: agrandarlas).
+  - `team-juan.jpg`, `team-patricio.jpg` y `team-luciano.jpg` — fotos del equipo en el cierre, recorte cuadrado
+    de 480x480 centrado en la cara (la de Juan ya venia cuadrada y bien encuadrada, 1254x1254, resize directo sin
+    recortar; la de Patricio salio de un original de 1088x1446, recorte de 960x960 en x=85,y=84: el recorte
+    anterior terminaba justo en el menton y se veia "cortado", ahora deja cuello y saco abajo; la de Luciano salio
+    de un original de 1448x1086, recorte de 940x940 en x=375,y=20; los PNG originales de ~2 MB no se versionan).
+    Con las tres fotos reales, el placeholder `.team__ph` (iniciales, con textura de rayas diagonales) ya no lo usa
+    nadie — se elimino del CSS. En la seccion de cierre las fotos miden `clamp(88px,9vw,112px)` con un halo dorado
+    suave (antes 64px; pedido del cliente/jefe: agrandarlas).
   - `system/` — capturas reales del sistema para la galeria de `#cadena` (ver mas abajo). 8 archivos
     (5 `.jpg` y 3 `.png`: `gastos-mensuales`, `ventas-dashboard` y `comisiones-de-empresa`), entre 1905 y 2161 de
     ancho, todos ~16:9 (1.764–1.786 contra 1.778: con `object-fit:cover` el recorte de costados es
@@ -180,7 +182,10 @@ Convenciones:
   `seed 14`/tope 46/prob. 0.075) porque en `#sistema` quedaban pocas; el testimonio (`#quote-canvas`,
   sumado de cero — antes esa sección no tenía canvas) usa una densidad más baja a propósito
   (`seed:8, cap:26, rate:0.045`), por ser una sección más chica. **En mobile (`small`, <720px) el hero y el
-  cierre bajaron su cantidad de partículas** (hero `particleField`: 46→30; cierre: 34→22; desktop sin cambios):
+  cierre bajaron su cantidad de partículas** (hero `particleField`: 46→30→22; cierre: 34→22; desktop sin cambios) —
+  el cliente pidio que las dos secciones tuvieran la MISMA cantidad en mobile (la del cierre le parecio la
+  cantidad justa; el hero, aun despues de la primera reduccion a 30, seguia con mas "constelaciones" que el
+  cierre) asi que el hero mobile bajo otro escalon mas, a los mismos 22 del cierre:
   el cliente aviso que en el celular el texto secundario del hero y del cierre "se perdía" contra el fondo
   animado — menos partículas significa tambien MUCHAS menos lineas de constelacion (`link:true` las traza entre
   pares cercanos, crecen en cuadrado con la cantidad), asi que el fondo queda bastante mas despejado detras del
