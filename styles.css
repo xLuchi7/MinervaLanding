@@ -265,11 +265,11 @@
     margin:22px auto 20px;max-width:17ch;
   }
   .hero h1 span{color:var(--gold);text-shadow:0 0 44px rgba(201,168,76,.45);}
-  .hero__sub{color:var(--muted-nav);font-size:clamp(16px,1.25vw,18.5px);max-width:56ch;margin:0 auto clamp(26px,3vw,34px);}
+  .hero__sub{color:rgba(255,255,255,.88);text-shadow:0 1px 9px rgba(13,27,42,.75);font-size:clamp(16px,1.25vw,18.5px);max-width:56ch;margin:0 auto clamp(26px,3vw,34px);}
   .hero__actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
   @media(max-width:880px){.hero__actions .btn--gold{display:none;}}
   .hero__checks{display:flex;gap:clamp(12px,2vw,22px);flex-wrap:wrap;justify-content:center;margin-top:26px;}
-  .hero__checks span{display:flex;align-items:center;gap:8px;font-size:13.5px;color:#B6C0CC;}
+  .hero__checks span{display:flex;align-items:center;gap:8px;font-size:13.5px;color:rgba(255,255,255,.88);text-shadow:0 1px 9px rgba(13,27,42,.75);}
   .hero__checks span::before{content:"✓";color:var(--gold);font-weight:700;}
 
   /* ---------- pillars strip ---------- */
@@ -774,15 +774,67 @@
   }
   .team__m b{display:block;font-size:16.5px;font-weight:600;color:#fff;font-family:var(--body);}
   .team__m span{font-size:13.5px;color:var(--muted-nav);}
-  .team__note{color:var(--muted-nav);font-size:14.5px;margin:0 0 clamp(40px,5vw,58px);}
+  .team__note{color:rgba(255,255,255,.88);text-shadow:0 1px 9px rgba(13,27,42,.75);font-size:14.5px;margin:0 0 clamp(40px,5vw,58px);}
   .close-cta h2{font-size:clamp(30px,4.6vw,50px);font-weight:700;letter-spacing:-.035em;line-height:1.03;margin:0 auto 18px;max-width:20ch;}
   .close-cta h2 span{color:var(--gold);}
-  .close-cta__sub{color:var(--muted-nav);font-size:17px;max-width:58ch;margin:0 auto 32px;}
+  .close-cta__sub{color:rgba(255,255,255,.88);text-shadow:0 1px 9px rgba(13,27,42,.75);font-size:17px;max-width:58ch;margin:0 auto 32px;}
   .close-cta__mail{margin:20px 0 0;font-size:13.5px;color:var(--muted-nav);}
   /* los dos botones del cierre miden lo mismo (columnas 1fr = el ancho del más largo) */
   .close-cta__actions{display:inline-grid;grid-template-columns:1fr 1fr;gap:14px;}
   .close-cta__actions .btn{justify-content:center;line-height:1.6;}
   @media(max-width:560px){.close-cta__actions{display:grid;grid-template-columns:1fr;}}
+
+  /* ---------- QR: hablar por WhatsApp o entrar a la web, escaneando ---------- */
+  .qr-row{margin-top:clamp(40px,5vw,58px);text-align:center;}
+  .qr-row__lbl{
+    display:flex;align-items:center;justify-content:center;gap:14px;
+    font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(255,255,255,.88);text-shadow:0 1px 9px rgba(13,27,42,.75);margin-bottom:22px;
+  }
+  .qr-row__lbl i{width:38px;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.55));}
+  .qr-row__lbl i:last-child{background:linear-gradient(90deg,rgba(201,168,76,.55),transparent);}
+  .qr-row__cards{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;}
+  /* la tarjeta ES el botón: tocarla agranda la QR (mismo lightbox de la
+     galería, sin nada más alrededor — pensado para escanear en una
+     reunión). No lleva directo a WhatsApp/la web: eso ya está en los
+     botones de arriba, y clickear una QR para "ir al link" le saca el
+     sentido — una QR es para que la escanee OTRO dispositivo. Icono
+     (burbuja de chat / globo) sobre la QR, etiqueta chica en versalitas
+     debajo — mismo lenguaje tipográfico que `.foot__col .k` y los kickers
+     del resto del sitio. Las dos QR se generaron con la MISMA "version"
+     (ver assets/qr-*.png en CLAUDE.md) para que los cuadraditos midan igual
+     entre una y otra, aunque el contenido codificado sea distinto — si no,
+     se ven de "tamaño" distinto una al lado de la otra aunque la tarjeta
+     mida lo mismo. */
+  .qr-card{
+    display:flex;flex-direction:column;align-items:center;gap:12px;
+    padding:22px 24px 18px;border-radius:16px;background:#fff;border:1px solid rgba(201,168,76,.3);
+    box-shadow:0 20px 40px -20px rgba(0,0,0,.5);cursor:pointer;font:inherit;
+    transition:transform .4s var(--ease),box-shadow .4s var(--ease),border-color .4s ease;
+  }
+  .qr-card:hover,.qr-card:focus-visible{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 26px 50px -18px rgba(201,168,76,.35);}
+  .qr-card:active{transform:translateY(-1px);}
+  /* círculo con tinte dorado y el ícono en el mismo dorado de la etiqueta de
+     abajo (`.qr-card__lbl`) — antes el ícono era un círculo navy sólido (más
+     "notorio" que la versión gris original, pero quedaba pesado y de un
+     color que no tenía que ver con el texto); ahora icono y texto comparten
+     color, se leen como una sola unidad en vez de dos elementos sueltos */
+  .qr-card__ico{
+    width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;
+    background:rgba(201,168,76,.14);color:var(--gold-deep);
+    transition:background .3s ease,color .3s ease,transform .3s var(--ease);
+  }
+  .qr-card:hover .qr-card__ico,.qr-card:focus-visible .qr-card__ico{background:var(--gold-deep);color:#fff;transform:scale(1.06);}
+  .qr-card__ico svg{width:22px;height:22px;}
+  .qr-card img{width:104px;height:104px;display:block;border-radius:6px;pointer-events:none;}
+  .qr-card__lbl{
+    font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--gold-deep);
+  }
+  @media(max-width:420px){
+    .qr-row__cards{gap:14px;}.qr-card{padding:18px 16px 15px;gap:10px;}.qr-card img{width:88px;height:88px;}
+    .qr-card__ico{width:40px;height:40px;}.qr-card__ico svg{width:20px;height:20px;}
+  }
 
   /* ---------- modal: solicitar demo ---------- */
   .demo{

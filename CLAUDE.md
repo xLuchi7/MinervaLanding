@@ -68,7 +68,7 @@ en orden:
 8. Testimonio + origen — glow de fondo (igual que el hero) + canvas de cometas.
 9. `#preguntas` — FAQ acordeon (`<details>` con animacion de alto por JS, una sola abierta) + orbs.
 10. Cierre — equipo + CTA a WhatsApp / mail + canvas de particulas.
-11. Footer (`.foot`) — antes era una linea de texto; ahora tiene el borde superior con la misma enredadera fina del header (`--vine`, variable global en `:root` con el tile SVG; la usan `.nav__inner::after` y `.foot::before`), un resplandor dorado suave, tres columnas (marca con logo + descripcion + pill "Hecho adentro de una representadora" / "Explorar" con los links a las secciones / "Contacto" con WhatsApp `+54 9 11 5007-2651`, `info@minervasystemsar.com` y "Solicitar una demo") y una barra inferior con © (año actual por JS: `#year`) y "Volver arriba". Los links tienen una rayita dorada que crece en hover. "Solicitar una demo" del footer abre el mismo modal: cualquier elemento con `data-demo-open` lo abre (el boton del cierre y el del footer). En <=860px las columnas pasan a 2 y en <=520px a 1. No se inventaron direcciones ni redes sociales (no hay datos). OJO con el ancho: el resplandor `.foot::after` mide `min(900px,100%)` y `.foot` lleva `overflow-x:clip` — con `120%` se salia 38px por la derecha en mobile (la pagina "quedaba con espacio libre a la derecha"). Para detectar desbordes NO alcanza mirar `documentElement.scrollWidth` de un elemento: comparar `document.body.scrollWidth` contra `documentElement.clientWidth` (los pseudo-elementos `::before/::after` tampoco salen en `querySelectorAll`). Ademas: lightbox y modal de demo.
+11. Footer (`.foot`) — antes era una linea de texto; ahora tiene el borde superior con la misma enredadera fina del header (`--vine`, variable global en `:root` con el tile SVG; la usan `.nav__inner::after` y `.foot::before`), un resplandor dorado suave, tres columnas (marca con logo + descripcion + pill "Hecho adentro de una representadora" / "Explorar" con los links a las secciones / "Contacto" con WhatsApp `+54 9 11 3210-1982`, `info@minervasystemsar.com` y "Solicitar una demo") y una barra inferior con © (año actual por JS: `#year`) y "Volver arriba". Los links tienen una rayita dorada que crece en hover. "Solicitar una demo" del footer abre el mismo modal: cualquier elemento con `data-demo-open` lo abre (el boton del cierre y el del footer). En <=860px las columnas pasan a 2 y en <=520px a 1. No se inventaron direcciones ni redes sociales (no hay datos). OJO con el ancho: el resplandor `.foot::after` mide `min(900px,100%)` y `.foot` lleva `overflow-x:clip` — con `120%` se salia 38px por la derecha en mobile (la pagina "quedaba con espacio libre a la derecha"). Para detectar desbordes NO alcanza mirar `documentElement.scrollWidth` de un elemento: comparar `document.body.scrollWidth` contra `documentElement.clientWidth` (los pseudo-elementos `::before/::after` tampoco salen en `querySelectorAll`). Ademas: lightbox y modal de demo.
 
 Convenciones:
 
@@ -179,16 +179,65 @@ Convenciones:
   densidad de cometas por canvas — el default subió (antes `seed(7)`/tope 30/prob. 0.045; ahora
   `seed 14`/tope 46/prob. 0.075) porque en `#sistema` quedaban pocas; el testimonio (`#quote-canvas`,
   sumado de cero — antes esa sección no tenía canvas) usa una densidad más baja a propósito
-  (`seed:8, cap:26, rate:0.045`), por ser una sección más chica.
+  (`seed:8, cap:26, rate:0.045`), por ser una sección más chica. **En mobile (`small`, <720px) el hero y el
+  cierre bajaron su cantidad de partículas** (hero `particleField`: 46→30; cierre: 34→22; desktop sin cambios):
+  el cliente aviso que en el celular el texto secundario del hero y del cierre "se perdía" contra el fondo
+  animado — menos partículas significa tambien MUCHAS menos lineas de constelacion (`link:true` las traza entre
+  pares cercanos, crecen en cuadrado con la cantidad), asi que el fondo queda bastante mas despejado detras del
+  texto sin sacar el efecto. Ademas, el texto secundario de esas dos secciones (`.hero__sub`, `.hero__checks
+  span`, `.close-cta__sub`, `.team__note`, `.qr-row__lbl`) paso de `--muted-nav` (#98A3B1) a un gris mas claro
+  ya usado en el hero (`#B6C0CC`) + `text-shadow` chico — primera pasada; el cliente aviso que ese gris
+  "con el navy no se nota tanto", asi que se subio a `rgba(255,255,255,.88)` (casi blanco, un poco por debajo de
+  los titulos en blanco puro para mantener la jerarquia) con la sombra mas marcada (`0 1px 9px rgba(13,27,42,.75)`)
+  para que se despegue bien del fondo animado. Es un cambio puntual a esos selectores, no al token `--muted-nav`
+  global (que sigue igual en FAQ/planes/testimonio/footer, que no se reportaron con el mismo problema).
 - **Colores/tipografia**: tokens en `:root` (`--navy`, `--gold`, `--cream`, `--display`, `--body`, ...).
-- **Contacto**: numero de WhatsApp `5491150072651` y `info@minervasystemsar.com`, hardcodeados en los
-  `href` (buscar `wa.me/5491150072651`).
+- **Contacto**: numero de WhatsApp `+54 9 11 3210-1982` (`wa.me/5491132101982`) y `info@minervasystemsar.com`,
+  hardcodeados en los `href` — 5 lugares: hero, implementacion, cierre, footer y la QR de WhatsApp (buscar
+  `wa.me/5491132101982` para cambiarlo). El mensaje precargado es el mismo en los 5: "Hola! Quiero coordinar una
+  reunión para conocer Minerva Systems" (`encodeURIComponent`, sin "¡" inicial a proposito — cada caracter
+  acentuado/simbolo pesa 6 caracteres codificado y eso engorda la QR; mantenerlo corto si se edita).
 - **Solicitar Demo** (cierre, al lado del boton de WhatsApp, mismo `.btn--gold` y **mismas dimensiones**: `.close-cta__actions` es un grid de 2 columnas `1fr`, que iguala el ancho al del mas largo; una sola columna en mobile): abre el modal
   `#demo` (Nombre / Email / Mensaje, mismos campos y textos que `GestionSoftware_Web/Views/Minerva/AboutUs.cshtml`)
   y hace `POST /api/demo` (JSON `{name,email,message,website}`). Pantalla de exito con check animado y
   resumen. **El modal solo se cierra con la cruz**: sin clic en el fondo, sin Escape y sin boton Cerrar (pedido del cliente). Validacion en el cliente (mensajes iguales al original) y otra vez en el servidor. `website` es
   un honeypot invisible. Logica en el bloque "MODAL SOLICITAR DEMO" de `script.js`, estilos `.demo*` en
   `styles.css`.
+- **QR (cierre, debajo de los botones y el mail)**: dos tarjetas blancas (`.qr-card`, fondo blanco necesario para
+  que la QR navy tenga contraste sobre el navy de la seccion) bajo el divisor "O ESCANEÁ" (`.qr-row__lbl`, mismo
+  patron linea-texto-linea que otros lugares del sitio). **La tarjeta ENTERA es un `<button>`** (icono + QR +
+  etiqueta adentro, sin anchor) **que agranda la QR — no lleva a WhatsApp/la web**: eso ya esta cubierto por los
+  botones de arriba, y que tocar la QR "vaya al link" le saca el sentido (una QR es para que la escanee *otro*
+  dispositivo, no el mismo desde el que la estas tocando). Tocar la tarjeta abre el mismo lightbox de la galeria
+  (`#lightbox`) mostrando SOLO esa QR grande, sin el resto de la pagina — pedido del cliente, para poder
+  mostrarla en una reunion. `openLb()` en `script.js` se generalizo para tomar `(src, alt)` en vez de un `<img>`
+  de la galeria; el `<button class="qr-card" data-qr-zoom="..." data-qr-alt="...">` se engancha igual que las
+  fotos de `.gallery__slide img`. El nombre accesible del boton va por `aria-label` en el propio `<button>`
+  ("Ver más grande el código QR para..."), no por el `alt` de la imagen (que queda vacio, `alt=""`, para no
+  duplicar el texto al lector de pantalla).
+  Icono redondo arriba de cada QR (`.qr-card__ico`, 44px): circulo con tinte dorado suave y el trazo en
+  `--gold-deep`, **el mismo color que la etiqueta de abajo** (`.qr-card__lbl`, tambien `--gold-deep`) — burbuja
+  de chat para WhatsApp, globo para el sitio (SVG inline, mismo trazo fino que `.nav__ico`; el globo es la
+  respuesta a "que icono le pongo a la web" — es el estandar reconocible para "sitio web"). Paso por dos rondas:
+  primero un circulo gris muy apagado que "no se notaba" (pedido del cliente: hacerlo mas notorio) → circulo navy
+  solido con icono dorado (mas notorio, pero "un poco de más" y sin relacion cromatica con la etiqueta) → este
+  circulo con tinte dorado + mismo color que el texto (pedido del cliente: "combinar el texto con el icono, a los
+  colores me refiero" — que se lean como una sola unidad, no dos elementos sueltos). En hover/focus el circulo se
+  rellena de `--gold-deep` solido con el icono en blanco. Antes tambien habia un boton "agrandar" aparte en la
+  esquina de la tarjeta (`.qr-card__zoom`) ademas del icono grande: en mobile, con los dos siempre visibles,
+  quedaban "dos iconos raros" juntos — se saco ese boton separado y la tarjeta entera pasó a cumplir esa funcion,
+  así queda un solo icono por tarjeta. Las imagenes: `assets/qr-whatsapp.png` (mismo link de WhatsApp que los
+  botones) y `assets/qr-web.png` (`https://www.minervasystemsar.com/`). **Las dos QR se generaron con la MISMA
+  `version` de la libreria (7, fija — no `fit=True`)**: si cada una usa su tamaño minimo, la del link de WhatsApp
+  (mas largo) queda mas densa que la del sitio, y aunque las dos tarjetas midan igual en CSS los cuadraditos de
+  una y otra se ven de distinto tamaño uno al lado del otro; con la version fija, el modulo mide igual en las dos.
+  Generadas una sola vez con la libreria Python `qrcode` (no es dependencia del proyecto — se instalo, se
+  generaron los PNG, se desinstalo; para regenerarlas: `pip install qrcode[pil]`, `version=7` fija en ambas,
+  modulos navy `#0D1B2A` sobre fondo blanco, `error_correction=ERROR_CORRECT_M`) y verificadas con `pyzbar`
+  (decodifican exacto a la URL esperada). Si cambia el numero de WhatsApp o el mensaje precargado, o el dominio
+  del sitio, hay que regenerar `assets/qr-whatsapp.png`/`assets/qr-web.png` para que sigan apuntando a lo mismo
+  que dicen los botones de arriba (y si el link nuevo es mucho mas largo, puede hacer falta subir la `version` —
+  probar que siga decodificando).
 - **Servidor (`server.js`)**: reemplaza a `serve`. Sirve SOLO el sitio (`index.html`, `styles.css`,
   `script.js` y `assets/**` (la ruta vieja `/Minerva Systems - landing.html` devuelve `index.html`); todo lo demas, incluidos
   `server.js`, `email/`, `.env` y este archivo, da 404) y expone `POST /api/demo`, que manda dos mails con

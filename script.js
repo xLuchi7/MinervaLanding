@@ -108,20 +108,24 @@
       }
     }
 
-    /* ---------- lightbox: cualquier imagen de la galería del sistema ---------- */
+    /* ---------- lightbox: imagenes de la galería y, con el botón "agrandar", las QR ---------- */
     var lb = document.getElementById('lightbox');
     var lbImg = document.getElementById('lightboxImg');
     var lbClose = document.getElementById('lightboxClose');
     if (lb && lbImg && lbClose){
-      function openLb(img){
-        lbImg.src = img.currentSrc || img.getAttribute('src');
-        lbImg.alt = img.getAttribute('alt') || '';
+      function openLb(src, alt){
+        lbImg.src = src;
+        lbImg.alt = alt || '';
         lb.classList.add('open');
         document.body.style.overflow = 'hidden';
       }
       function closeLb(){ lb.classList.remove('open'); document.body.style.overflow = ''; }
       document.querySelectorAll('.gallery__slide img').forEach(function(img){
-        img.addEventListener('click', function(){ openLb(img); });
+        img.addEventListener('click', function(){ openLb(img.currentSrc || img.src, img.alt); });
+      });
+      // botón "agrandar" de cada QR: sólo la QR grande en pantalla, para escanear en una reunión
+      document.querySelectorAll('[data-qr-zoom]').forEach(function(btn){
+        btn.addEventListener('click', function(){ openLb(btn.getAttribute('data-qr-zoom'), btn.getAttribute('data-qr-alt')); });
       });
       lbClose.addEventListener('click', closeLb);
       lb.addEventListener('click', function(e){ if (e.target === lb) closeLb(); });
@@ -305,12 +309,16 @@
     var cometC = document.getElementById('comet-canvas');
     var quoteC = document.getElementById('quote-canvas');
     var ctaC   = document.getElementById('cta-canvas');
-    if (heroC)  particleField(heroC, small ? 46 : 90, [GOLD, GOLD, GOLD_HI, MIST], { link:true });
+    // en mobile, menos partículas que antes (46→30, 34→22): el cliente avisó que el
+    // texto del hero y del cierre "se perdía" contra el fondo animado en el celular —
+    // con menos puntos hay menos lineas de constelación (crecen en cuadrado con la
+    // cantidad) y el fondo queda más tranquilo detrás del texto, sin sacar el efecto
+    if (heroC)  particleField(heroC, small ? 30 : 90, [GOLD, GOLD, GOLD_HI, MIST], { link:true });
     if (cometC) cometField(cometC, [GOLD, GOLD, GOLD_HI]);
     // versión más calma para la franja del testimonio — sección más chica,
     // no hace falta la misma densidad que "qué incluye el sistema"
     if (quoteC) cometField(quoteC, [GOLD, GOLD_HI, MIST], { seed:8, cap:26, rate:0.045, rateReduce:0.02 });
-    if (ctaC)   particleField(ctaC, small ? 34 : 58, [GOLD, GOLD, GOLD_HI, MIST], { link:true, parallax:false });
+    if (ctaC)   particleField(ctaC, small ? 22 : 58, [GOLD, GOLD, GOLD_HI, MIST], { link:true, parallax:false });
 
     /* ======================================================================
        GALERÍA DEL SISTEMA (N imágenes, lista para crecer)
