@@ -313,7 +313,7 @@
     // texto del hero y del cierre "se perdía" contra el fondo animado en el celular —
     // con menos puntos hay menos lineas de constelación (crecen en cuadrado con la
     // cantidad) y el fondo queda más tranquilo detrás del texto, sin sacar el efecto
-    if (heroC)  particleField(heroC, small ? 22 : 90, [GOLD, GOLD, GOLD_HI, MIST], { link:true });
+    if (heroC)  particleField(heroC, small ? 16 : 90, [GOLD, GOLD, GOLD_HI, MIST], { link:true });
     if (cometC) cometField(cometC, [GOLD, GOLD, GOLD_HI]);
     // versión más calma para la franja del testimonio — sección más chica,
     // no hace falta la misma densidad que "qué incluye el sistema"
